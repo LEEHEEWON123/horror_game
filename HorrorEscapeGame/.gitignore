@@ -1,0 +1,65 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+*.apk
+*.aab
+*.unitypackage
+*.csproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.DS_Store
+
+# Third-party asset packs (local only, not committed to git)
+Assets/(HDRP)*
+Assets/AngeloMaN87/
+Assets/AngeloMaN87.meta
+Assets/Art/
+Assets/Art.meta
+Assets/ArtStore3D/
+Assets/ArtStore3D.meta
+Assets/Backrooms Entity SFX/
+Assets/Backrooms Entity SFX.meta
+Assets/Cursed Priest/
+Assets/Cursed Priest.meta
+Assets/Entity_SFX_2/
+Assets/Entity_SFX_2.meta
+Assets/FantasyCastleDemo/
+Assets/FantasyCastleDemo.meta
+Assets/Industrial_Zone_Modular_Pack/
+Assets/Industrial_Zone_Modular_Pack.meta
+Assets/LoafbrrAssets/
+Assets/LoafbrrAssets.meta
+Assets/MobileDependencyResolver/
+Assets/MobileDependencyResolver.meta
+Assets/Parkgarage/
+Assets/Parkgarage.meta
+Assets/Protection_suite/
+Assets/Protection_suite.meta
+Assets/Rallba/
+Assets/Rallba.meta
+Assets/SciFi Warehouse Kit/
+Assets/SciFi Warehouse Kit.meta
+Assets/Simple 3D Noise/
+Assets/Simple 3D Noise.meta
+Assets/Sponza/
+Assets/Sponza.meta
+Assets/SwampHouse/
+Assets/SwampHouse.meta
+Assets/Asset/
+Assets/Asset.meta
+Assets/Zombie_Mutant/
+Assets/Zombie_Mutant.meta
