@@ -21,8 +21,8 @@ public class MainMenuBootstrap : MonoBehaviour
 
         CreateLabel(canvas.transform, "HORROR ESCAPE", 72, new Vector2(0, 300), Color.white);
         var menu = canvas.gameObject.AddComponent<MainMenuUI>();
-        CreateButton(canvas.transform, "시작하기", new Vector2(0, 0), () => menu.OnStartButton());
-        CreateButton(canvas.transform, "종료", new Vector2(0, -120), () => menu.OnQuitButton());
+        CreateButton(canvas.transform, "GAME START", new Vector2(0, 0), () => menu.OnStartButton());
+        CreateButton(canvas.transform, "QUIT", new Vector2(0, -120), () => menu.OnQuitButton());
     }
 
     private static void CreateLabel(Transform parent, string text, float size, Vector2 pos, Color color)

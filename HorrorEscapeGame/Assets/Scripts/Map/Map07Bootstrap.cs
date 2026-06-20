@@ -49,6 +49,14 @@ public class Map07Bootstrap : MonoBehaviour
 
     private void ResolvePrefabs()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
+            if (entityVisualPrefab == null) entityVisualPrefab = reg.insurgentVisualPrefab;
+            if (entityAnimatorController == null) entityAnimatorController = reg.insurgentAnimatorController;
+            if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
+        }
 #if UNITY_EDITOR
         if (protectiveSuitVisualPrefab == null)
         {
@@ -60,7 +68,6 @@ public class Map07Bootstrap : MonoBehaviour
             entityVisualPrefab = InsurgentVisualSetup.LoadPrefab();
 
         InsurgentVisualSetup.EnsureHumanoidImport();
-        InsurgentAnimatorAssetBuilder.Build(force: false);
 
         if (entityAnimatorController == null)
             entityAnimatorController = InsurgentVisualSetup.LoadDefaultController();
@@ -157,7 +164,7 @@ public class Map07Bootstrap : MonoBehaviour
         }
 
         var fp = pivot.AddComponent<FirstPersonCamera>();
-        fp.Configure(player, cam.transform, 1.5f);
+        fp.Configure(player, cam.transform, FirstPersonCamera.DefaultMouseSensitivity);
 
         PlayerFirstPersonSetup.AttachFlashlight(cam.transform);
 

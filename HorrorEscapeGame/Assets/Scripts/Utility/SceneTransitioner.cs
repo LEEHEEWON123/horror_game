@@ -215,14 +215,9 @@ public class SceneTransitioner : MonoBehaviour
     private void BeginStaticTransition()
     {
         EnsureFadeOverlay();
-        SetFadeAlpha(0f);
+        HideStaticOverlay();
+        SetFadeAlpha(0.35f);
         _fadePanel.raycastTarget = false;
-
-        if (_staticOverlay == null) return;
-
-        _staticOverlay.BringToFront();
-        _staticOverlay.SetVisible(true);
-        _staticOverlay.SetAlpha(0.45f);
     }
 
     private IEnumerator PortalThresholdLoad(string sceneName)
@@ -256,45 +251,19 @@ public class SceneTransitioner : MonoBehaviour
     private IEnumerator StaticTransitionAndLoad(string sceneName)
     {
         EnsureFadeOverlay();
-        SetFadeAlpha(0f);
-        _fadePanel.raycastTarget = false;
+        HideStaticOverlay();
         PlayScream();
 
-        float staticStart = 0.45f;
-        if (_staticOverlay == null || !_staticOverlay.gameObject.activeInHierarchy)
-            BeginStaticTransition();
-        else
-        {
-            _staticOverlay.BringToFront();
-            _staticOverlay.SetVisible(true);
-            staticStart = _staticOverlay.CurrentIntensity;
-        }
-
+        float totalFade = noclipStaticDuration + noclipBlackDuration;
         float elapsed = 0f;
-        while (elapsed < noclipStaticDuration)
+        while (elapsed < totalFade)
         {
             elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(elapsed / noclipStaticDuration);
-            if (_staticOverlay != null)
-                _staticOverlay.SetAlpha(Mathf.Lerp(staticStart, 1f, t));
-            yield return null;
-        }
-
-        elapsed = 0f;
-        while (elapsed < noclipBlackDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(elapsed / noclipBlackDuration);
-            SetFadeAlpha(t);
-            if (_staticOverlay != null)
-                _staticOverlay.SetAlpha(1f - t * 0.8f);
+            SetFadeAlpha(Mathf.Clamp01(elapsed / totalFade));
             yield return null;
         }
 
         SetFadeAlpha(1f);
-        if (_staticOverlay != null)
-            _staticOverlay.SetVisible(false);
-
         SceneManager.LoadScene(sceneName);
 
         for (int i = 0; i < postLoadFrames; i++)

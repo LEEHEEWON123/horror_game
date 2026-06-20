@@ -48,9 +48,8 @@ public class DimensionWakeSequence : MonoBehaviour
 
         if (SceneTransitioner.Instance != null)
         {
-            SceneTransitioner.Instance.ShowStaticOverlay(1f);
+            SceneTransitioner.Instance.HideStaticOverlay();
             yield return SceneTransitioner.Instance.FadeInRoutine(RevealDuration);
-            yield return SceneTransitioner.Instance.FadeOutStaticRoutine(0.75f, 0.42f);
         }
 
         yield return new WaitForSecondsRealtime(autoStand ? 0.45f : 0.55f);
@@ -72,9 +71,6 @@ public class DimensionWakeSequence : MonoBehaviour
 
         if (hint != null)
             hint.text = string.Empty;
-
-        if (SceneTransitioner.Instance != null)
-            yield return SceneTransitioner.Instance.FadeOutStaticRoutine(0.35f, 0f);
 
         float elapsed = 0f;
         while (elapsed < StandDuration)

@@ -6,19 +6,20 @@ using UnityEngine;
 public class Map03Bootstrap : MonoBehaviour
 {
     [SerializeField] private GameObject protectiveSuitVisualPrefab;
-    [SerializeField] private GameObject sponzaPrefab;
     [SerializeField] private Texture2D smilerTexture;
     [SerializeField] private AudioClip[] entityChaseClips;
 
     private Map03Layout _layout;
+    private Transform _patrolRoot;
 
     private void Awake()
     {
         ResolveAssets();
         GameUIBuilder.EnsureCoreSystems();
 
-        var map = SponzaMazeMapBuilder.Build(sponzaPrefab);
+        var map = SponzaMazeMapBuilder.Build();
         _layout = Map03Layout.ForSponzaMaze(map);
+        _patrolRoot = new GameObject("Map03_PatrolRoutes").transform;
 
         SponzaAtmosphere.Apply(map.Bounds, map.RoomHeight);
 
@@ -26,11 +27,10 @@ public class Map03Bootstrap : MonoBehaviour
         SetupFirstPersonCamera(player.transform);
 
         MapPortalSetup.SpawnForActiveMap(
-            _layout.CapsuleSpawn + Vector3.up * 0.8f,
+            _layout.CapsuleSpawn,
             _layout.PlayerSpawn,
             map.MazeWalls,
-            map.TileSize,
-            snapToFloor: false);
+            map.TileSize);
 
         var interaction = player.GetComponent<PlayerInteraction>();
         var canvas = GameUIBuilder.CreateScreenCanvas("GameCanvas", Camera.main);
@@ -38,7 +38,7 @@ public class Map03Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
-        NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: false);
+        NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: true, preferPhysicsColliders: true);
 
         SpawnSmiler("Smiler_Map03_A", _layout.SmilerSpawn, _layout.SmilerWaypoints);
         SpawnSmiler("Smiler_Map03_B", _layout.Smiler2Spawn, _layout.Smiler2Waypoints);
@@ -46,15 +46,19 @@ public class Map03Bootstrap : MonoBehaviour
 
     private void ResolveAssets()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
+            if (smilerTexture == null) smilerTexture = reg.smilerTexture;
+            if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
+        }
 #if UNITY_EDITOR
         if (protectiveSuitVisualPrefab == null)
         {
             protectiveSuitVisualPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/Protection_suite/Prefab/Mesh_protective suit.prefab");
         }
-
-        if (sponzaPrefab == null)
-            sponzaPrefab = SponzaMazeMapBuilder.LoadDefaultPrefab();
 
         if (smilerTexture == null)
             smilerTexture = SmilerVisualSetup.LoadTexture();
@@ -177,7 +181,7 @@ public class Map03Bootstrap : MonoBehaviour
 
         var waypoints = new Transform[patrolPoints.Length];
         for (int i = 0; i < patrolPoints.Length; i++)
-            waypoints[i] = CreateWaypoint(entity.transform, $"WP_{i}", patrolPoints[i]);
+            waypoints[i] = CreateWaypoint($"{entityName}_WP_{i}", patrolPoints[i]);
 
         var ai = entity.AddComponent<MonsterAI>();
         ai.Configure(waypoints);
@@ -197,10 +201,10 @@ public class Map03Bootstrap : MonoBehaviour
         attack.AddComponent<MonsterAttackZone>();
     }
 
-    private static Transform CreateWaypoint(Transform parent, string name, Vector3 worldPos)
+    private Transform CreateWaypoint(string name, Vector3 worldPos)
     {
         var wp = new GameObject(name).transform;
-        wp.SetParent(parent);
+        wp.SetParent(_patrolRoot, false);
         wp.position = worldPos;
         return wp;
     }
@@ -220,38 +224,34 @@ internal struct Map03Layout
         float walkY = map.WalkSurfaceY;
         float tile = map.TileSize;
         var bounds = map.Bounds;
-        float minX = bounds.min.x + tile * 0.5f;
-        float maxX = bounds.max.x - tile * 0.5f;
-        float minZ = bounds.min.z + tile * 0.5f;
-        float maxZ = bounds.max.z - tile * 0.5f;
+        float minX = bounds.min.x + tile * 1.5f;
+        float maxX = bounds.max.x - tile * 1.5f;
+        float minZ = bounds.min.z + tile * 1.5f;
+        float maxZ = bounds.max.z - tile * 1.5f;
         float midX = bounds.center.x;
         float midZ = bounds.center.z;
 
-        Vector3 Snap(Vector3 hint) => MazeGenerator.SnapToPassage(map.MazeWalls, hint, tile, walkY);
-
-        var playerHint = new Vector3(midX, walkY, minZ + tile * 0.35f);
-        var smilerHint  = new Vector3(maxX - tile * 0.8f, walkY, midZ);
-        var smiler2Hint = new Vector3(minX + tile * 0.8f, walkY, midZ);
+        Vector3 Place(Vector3 hint) => MazeGenerator.SnapToPassage(map.MazeWalls, hint, tile, walkY);
 
         return new Map03Layout
         {
-            PlayerSpawn = Snap(playerHint),
-            CapsuleSpawn = Snap(new Vector3(maxX - tile * 0.35f, walkY, maxZ - tile * 0.35f)),
-            SmilerSpawn = Snap(smilerHint),
+            PlayerSpawn = Place(new Vector3(midX, walkY, minZ + tile)),
+            CapsuleSpawn = Place(new Vector3(maxX - tile, walkY, maxZ - tile)),
+            SmilerSpawn = Place(new Vector3(maxX - tile * 2f, walkY, midZ)),
             SmilerWaypoints = new[]
             {
-                Snap(new Vector3(minX + tile, walkY, midZ)),
-                Snap(smilerHint),
-                Snap(new Vector3(midX, walkY, maxZ - tile)),
-                Snap(new Vector3(maxX - tile * 1.5f, walkY, minZ + tile * 1.2f))
+                Place(new Vector3(minX + tile * 2f, walkY, minZ + tile * 2f)),
+                Place(new Vector3(maxX - tile * 2f, walkY, minZ + tile * 2f)),
+                Place(new Vector3(maxX - tile * 2f, walkY, maxZ - tile * 2f)),
+                Place(new Vector3(minX + tile * 2f, walkY, maxZ - tile * 2f))
             },
-            Smiler2Spawn = Snap(smiler2Hint),
+            Smiler2Spawn = Place(new Vector3(minX + tile * 2f, walkY, midZ)),
             Smiler2Waypoints = new[]
             {
-                Snap(new Vector3(minX + tile * 1.5f, walkY, minZ + tile * 1.2f)),
-                Snap(smiler2Hint),
-                Snap(new Vector3(midX, walkY, minZ + tile)),
-                Snap(new Vector3(minX + tile, walkY, maxZ - tile))
+                Place(new Vector3(minX + tile * 2f, walkY, maxZ - tile * 2f)),
+                Place(new Vector3(midX, walkY, maxZ - tile * 2f)),
+                Place(new Vector3(midX, walkY, minZ + tile * 2f)),
+                Place(new Vector3(maxX - tile * 2f, walkY, midZ))
             }
         };
     }

@@ -17,6 +17,7 @@ public static class HorrorSceneBootstrap
             return;
 
         BootstrapActiveScene();
+        HorrorScreenEffectsRunner.Schedule(scene.name);
         ApplyDimensionEntrySafety();
         TryApplyPortalEntry();
         TryScheduleDimensionWake(scene.name);

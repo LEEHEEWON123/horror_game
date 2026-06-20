@@ -80,7 +80,7 @@ public static class Map04Viewpoint
         }
 
         var fp = pivot.AddComponent<FirstPersonCamera>();
-        fp.Configure(player, cam.transform, 1.5f);
+        fp.Configure(player, cam.transform, FirstPersonCamera.DefaultMouseSensitivity);
     }
 
     public static IEnumerator StabilizeAfterPhysics(MonoBehaviour host, Transform player, Bounds bounds)

@@ -34,7 +34,7 @@ public static class Map05Viewpoint
         }
 
         var fp = pivot.AddComponent<FirstPersonCamera>();
-        fp.Configure(player, cam.transform, 1.5f);
+        fp.Configure(player, cam.transform, FirstPersonCamera.DefaultMouseSensitivity);
     }
 
     public static void ConfigureCatchView(PlayerCatchSequence sequence)

@@ -48,6 +48,8 @@ public class Map00Bootstrap : MonoBehaviour
 
     private void ResolveAssets()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && cityPrefab == null) cityPrefab = reg.cityPrefab;
 #if UNITY_EDITOR
         if (cityPrefab == null)
             cityPrefab = DemoCityMapBuilder.LoadDefaultPrefab();

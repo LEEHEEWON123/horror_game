@@ -21,22 +21,18 @@ public class DimensionPortal : MonoBehaviour
     {
         if (_triggered || !IsPlayer(other)) return;
 
-        if (_kind == PortalTransitionKind.Dimension)
-        {
-            _triggered = true;
-            GameManager.Instance?.CompleteMapThroughPortal(_portalRoot);
-            return;
-        }
-
         _triggered = true;
-        StartCoroutine(RunReturnEntrySequence(other.transform));
+        StartCoroutine(RunEntrySequence(other.transform));
     }
 
-    private IEnumerator RunReturnEntrySequence(Transform player)
+    private IEnumerator RunEntrySequence(Transform player)
     {
         if (player == null)
         {
-            GameManager.Instance?.CompleteMap();
+            if (_kind == PortalTransitionKind.Dimension)
+                GameManager.Instance?.CompleteMapThroughPortal(_portalRoot);
+            else
+                GameManager.Instance?.CompleteMap();
             yield break;
         }
 
@@ -44,6 +40,7 @@ public class DimensionPortal : MonoBehaviour
         var interaction = player.GetComponent<PlayerInteraction>();
         var fpCamera = player.GetComponentInChildren<FirstPersonCamera>();
         var cam = Camera.main;
+        var rb = player.GetComponent<Rigidbody>();
 
         SetGameplayEnabled(controller, interaction, fpCamera, false);
         SetJoystickVisible(false);
@@ -55,19 +52,27 @@ public class DimensionPortal : MonoBehaviour
 
         Transform portal = _portalRoot != null ? _portalRoot : transform;
         Vector3 pullTarget = portal.position + portal.forward * 0.35f + Vector3.up * 1.45f;
-        Transform pivot = fpCamera != null ? fpCamera.transform : cam != null ? cam.transform.parent : null;
         Transform camTransform = cam != null ? cam.transform : null;
-        Vector3 pivotStart = pivot != null ? pivot.position : player.position + Vector3.up * 1.45f;
-        Vector3 pivotEnd = pullTarget;
+        Vector3 bodyStart = player.position;
+        Vector3 bodyEnd = MapFloor.PlaceOnFloor(portal.position - portal.forward * 0.25f);
 
         float elapsed = 0f;
         while (elapsed < PullDuration)
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / PullDuration);
+            float moveT = t * 0.92f;
 
-            if (pivot != null)
-                pivot.position = Vector3.Lerp(pivotStart, pivotEnd, t * 0.78f);
+            Vector3 bodyPos = Vector3.Lerp(bodyStart, bodyEnd, moveT);
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.MovePosition(bodyPos);
+            }
+            else
+            {
+                player.position = bodyPos;
+            }
 
             if (camTransform != null)
             {
@@ -75,7 +80,7 @@ public class DimensionPortal : MonoBehaviour
                 if (lookDir.sqrMagnitude > 0.01f)
                 {
                     var lookRot = Quaternion.LookRotation(lookDir.normalized);
-                    camTransform.rotation = Quaternion.Slerp(camTransform.rotation, lookRot, t * 0.22f);
+                    camTransform.rotation = Quaternion.Slerp(camTransform.rotation, lookRot, t * 0.35f);
                 }
             }
 
@@ -88,7 +93,10 @@ public class DimensionPortal : MonoBehaviour
         if (HoldDuration > 0f)
             yield return new WaitForSecondsRealtime(HoldDuration);
 
-        GameManager.Instance?.CompleteMap();
+        if (_kind == PortalTransitionKind.Dimension)
+            GameManager.Instance?.CompleteMapThroughPortal(_portalRoot);
+        else
+            GameManager.Instance?.CompleteMap();
     }
 
     private static void PlayEnterClip(Vector3 position)

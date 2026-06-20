@@ -61,7 +61,7 @@ public class Map05Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
-        NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: false);
+        NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: false, preferPhysicsColliders: true);
 
         SpawnMonster("Entity_Map05_A", _layout.MonsterSpawns[0], _layout.MonsterWaypoints);
         SpawnMonster("Entity_Map05_B", _layout.MonsterSpawns[1], _layout.MonsterWaypoints);
@@ -69,6 +69,14 @@ public class Map05Bootstrap : MonoBehaviour
 
     private void ResolveAssets()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
+            if (priestVisualPrefab == null) priestVisualPrefab = reg.priestVisualPrefab;
+            if (entityAnimatorController == null) entityAnimatorController = reg.priestAnimatorController;
+            if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
+        }
 #if UNITY_EDITOR
         if (protectiveSuitVisualPrefab == null)
         {
@@ -82,7 +90,6 @@ public class Map05Bootstrap : MonoBehaviour
         if (priestVisualPrefab == null)
             priestVisualPrefab = PriestVisualSetup.LoadPrefab();
 
-        PriestAnimatorAssetBuilder.Build(force: false);
 
         if (entityAnimatorController == null)
             entityAnimatorController = PriestVisualSetup.LoadDefaultController();

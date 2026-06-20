@@ -71,6 +71,14 @@ public class Map06Bootstrap : MonoBehaviour
 
     private void ResolveAssets()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
+            if (entityVisualPrefab == null) entityVisualPrefab = reg.mutantVisualPrefab;
+            if (entityAnimatorController == null) entityAnimatorController = reg.mutantAnimatorController;
+            if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
+        }
 #if UNITY_EDITOR
         if (protectiveSuitVisualPrefab == null)
         {
@@ -81,7 +89,6 @@ public class Map06Bootstrap : MonoBehaviour
         if (entityVisualPrefab == null)
             entityVisualPrefab = MutantVisualSetup.LoadPrefab();
 
-        EntityAnimatorAssetBuilder.Build(force: false);
 
         if (entityAnimatorController == null)
         {

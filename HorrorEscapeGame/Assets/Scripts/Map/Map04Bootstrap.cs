@@ -78,6 +78,14 @@ public class Map04Bootstrap : MonoBehaviour
 
     private void ResolveAssets()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
+            if (pumpkinVisualPrefab == null) pumpkinVisualPrefab = reg.pumpkinVisualPrefab;
+            if (entityAnimatorController == null) entityAnimatorController = reg.pumpkinAnimatorController;
+            if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
+        }
 #if UNITY_EDITOR
         if (protectiveSuitVisualPrefab == null)
         {
@@ -88,7 +96,6 @@ public class Map04Bootstrap : MonoBehaviour
         if (pumpkinVisualPrefab == null)
             pumpkinVisualPrefab = PumpkinVisualSetup.LoadDefaultPrefab();
 
-        PumpkinAnimatorAssetBuilder.Build(force: true);
 
         if (entityAnimatorController == null)
             entityAnimatorController = PumpkinVisualSetup.LoadDefaultController();

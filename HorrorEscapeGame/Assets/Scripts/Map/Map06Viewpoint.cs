@@ -33,7 +33,7 @@ public static class Map06Viewpoint
         player.rotation = Quaternion.Euler(0f, player.eulerAngles.y, 0f);
 
         var fp = pivot.AddComponent<FirstPersonCamera>();
-        fp.Configure(player, cam.transform, 1.5f);
+        fp.Configure(player, cam.transform, FirstPersonCamera.DefaultMouseSensitivity);
     }
 
     public static void ConfigureCatchView(PlayerCatchSequence sequence, float entityScale)

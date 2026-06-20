@@ -50,12 +50,7 @@ public static class DimensionMapPreviewBuilder
 
     private static PreviewBuildResult BuildMap03(Transform parent)
     {
-#if UNITY_EDITOR
-        var prefab = SponzaMazeMapBuilder.LoadDefaultPrefab();
-#else
-        GameObject prefab = null;
-#endif
-        var map = SponzaMazeMapBuilder.Build(prefab);
+        var map = SponzaMazeMapBuilder.Build();
         return Attach(parent, map.Root, map.Bounds);
     }
 

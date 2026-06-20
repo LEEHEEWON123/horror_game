@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class PortalNextMapPreview : MonoBehaviour
@@ -12,7 +11,6 @@ public class PortalNextMapPreview : MonoBehaviour
     private Camera _portalCamera;
     private Camera _mainCamera;
     private RenderTexture _renderTexture;
-    private Material _viewMaterial;
     private bool _loading;
     private int _mainCameraMask = -1;
 
@@ -63,7 +61,12 @@ public class PortalNextMapPreview : MonoBehaviour
         PortalPreviewLayer.DisablePhysicsRecursively(_previewRoot.gameObject);
         AddPreviewLighting(_previewRoot);
         SetupPortalCamera(_previewRoot);
-        SetupPortalViewMaterial(portalView);
+        if (_portalCamera != null)
+            _portalCamera.Render();
+
+        if (!PortalViewMaterial.TryApplyTexture(portalView, _renderTexture))
+            Debug.LogWarning("[PortalNextMapPreview] Could not assign portal preview material; keeping fallback color.");
+
         HidePreviewFromMainCamera();
 
         _loading = false;
@@ -129,21 +132,6 @@ public class PortalNextMapPreview : MonoBehaviour
         _portalCamera.targetTexture = _renderTexture;
     }
 
-    private void SetupPortalViewMaterial(Renderer portalView)
-    {
-        var shader = Shader.Find("Universal Render Pipeline/Unlit");
-        if (shader == null)
-            shader = Shader.Find("Unlit/Texture");
-
-        _viewMaterial = new Material(shader);
-        _viewMaterial.SetTexture("_BaseMap", _renderTexture);
-        _viewMaterial.SetColor("_BaseColor", Color.white);
-
-        portalView.sharedMaterial = _viewMaterial;
-        portalView.shadowCastingMode = ShadowCastingMode.Off;
-        portalView.receiveShadows = false;
-    }
-
     private void HidePreviewFromMainCamera()
     {
         _mainCamera = Camera.main;
@@ -171,16 +159,12 @@ public class PortalNextMapPreview : MonoBehaviour
             Destroy(_renderTexture);
         }
 
-        if (_viewMaterial != null)
-            Destroy(_viewMaterial);
-
         if (_previewRoot != null)
             Destroy(_previewRoot.gameObject);
 
         _previewRoot = null;
         _portalCamera = null;
         _renderTexture = null;
-        _viewMaterial = null;
         _loading = false;
     }
 

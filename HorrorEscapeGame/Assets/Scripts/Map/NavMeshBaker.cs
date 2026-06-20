@@ -13,7 +13,10 @@ public static class NavMeshBaker
         BakeSurface(surface);
     }
 
-    public static void BakeForMapRoot(Transform mapRoot, bool carveWalls = true)
+    public static void BakeForMapRoot(
+        Transform mapRoot,
+        bool carveWalls = true,
+        bool preferPhysicsColliders = false)
     {
         if (mapRoot == null)
         {
@@ -29,31 +32,77 @@ public static class NavMeshBaker
             surface = mapRoot.gameObject.AddComponent<NavMeshSurface>();
 
         surface.collectObjects = CollectObjects.Children;
-        BakeSurface(surface, mapRoot);
+        BakeSurface(surface, mapRoot, preferPhysicsColliders);
     }
 
-    private static void BakeSurface(NavMeshSurface surface, Transform scope = null)
+    private static void BakeSurface(
+        NavMeshSurface surface,
+        Transform scope = null,
+        bool preferPhysicsColliders = false)
     {
-        var skipped = DisableUnreadableMeshColliders(scope);
+        var skippedColliders = DisableUnreadableMeshColliders(scope);
+        var skippedRenderers = DisableUnreadableMeshRenderers(scope);
         try
         {
-            // Prefer render meshes; unreadable asset-store FBX needs Read/Write or dedicated nav geometry.
-            surface.useGeometry = NavMeshCollectGeometry.RenderMeshes;
+            // Physics colliders work in WebGL/player; imported FBX render meshes often are not readable.
+            surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             surface.BuildNavMesh();
 
-            if (!HasNavMeshData())
+            if (!HasNavMeshData() && !preferPhysicsColliders)
             {
-                surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+                surface.useGeometry = NavMeshCollectGeometry.RenderMeshes;
                 surface.BuildNavMesh();
             }
         }
         finally
         {
-            RestoreColliders(skipped);
+            RestoreColliders(skippedColliders);
+            RestoreRenderers(skippedRenderers);
         }
 
         if (!HasNavMeshData())
             Debug.LogWarning("NavMesh bake produced no walkable area — check floor geometry.");
+    }
+
+    private static List<MeshRenderer> DisableUnreadableMeshRenderers(Transform scope)
+    {
+        var skipped = new List<MeshRenderer>();
+        MeshRenderer[] renderers = scope != null
+            ? scope.GetComponentsInChildren<MeshRenderer>(true)
+            : Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None);
+
+        foreach (var renderer in renderers)
+        {
+            if (renderer == null || !renderer.enabled)
+                continue;
+
+            var mesh = GetSharedMesh(renderer);
+            if (mesh == null || mesh.isReadable)
+                continue;
+
+            renderer.enabled = false;
+            skipped.Add(renderer);
+        }
+
+        return skipped;
+    }
+
+    private static Mesh GetSharedMesh(Renderer renderer)
+    {
+        if (renderer is SkinnedMeshRenderer skinned)
+            return skinned.sharedMesh;
+
+        var filter = renderer.GetComponent<MeshFilter>();
+        return filter != null ? filter.sharedMesh : null;
+    }
+
+    private static void RestoreRenderers(List<MeshRenderer> renderers)
+    {
+        foreach (var renderer in renderers)
+        {
+            if (renderer != null)
+                renderer.enabled = true;
+        }
     }
 
     private static List<MeshCollider> DisableUnreadableMeshColliders(Transform scope)

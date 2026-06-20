@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60081d01152c74ffd8b0848360288593, type: 3}
+  m_Name: HorrorAssetRegistry
+  m_EditorClassIdentifier: HorrorEscapeGame::HorrorAssetRegistry
+  cityPrefab: {fileID: 4778115209328083979, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
+  backroomsLevelPrefab: {fileID: 8544485197912270197, guid: a62ebb512b53f2844b5b312cc82e6bcc, type: 3}
+  sponzaPrefab: {fileID: 919132149155446097, guid: 52a52192bf37ef543bb0dcfc6578c80b, type: 3}
+  sponzaFloorMaterial: {fileID: 2100000, guid: 0544cde57a37a794181a44300017f70f, type: 2}
+  sponzaWallMaterial: {fileID: 2100000, guid: a93b4d48c118cd8458f3f82777599bad, type: 2}
+  sponzaAltWallMaterial: {fileID: 2100000, guid: f87f62dada3b8064aa62fe08f7cdbbb6, type: 2}
+  sponzaCeilingMaterial: {fileID: 2100000, guid: 4beb83894b3ab1048bb9fd31df9daa49, type: 2}
+  protectiveSuitVisualPrefab: {fileID: 6319086292977565285, guid: 56fc080e7bbacb24c86fd1e5760231bd, type: 3}
+  mutantVisualPrefab: {fileID: 4198877092734045152, guid: f4764a21bb3a8ca4084c8a31149ab67f, type: 3}
+  pumpkinVisualPrefab: {fileID: 3719395497478071300, guid: 149914faacece2940a120e1783c4c6a9, type: 3}
+  priestVisualPrefab: {fileID: 4363578991983522480, guid: 6924745a509f7b746bc74f3d4548b1aa, type: 3}
+  insurgentVisualPrefab: {fileID: 8240661434394411190, guid: 24b5fb0c952c9bd4fb8bbffaaa853f21, type: 3}
+  mutantAnimatorController: {fileID: 9100000, guid: 9f6adb740d8044fe1a1c9892350a852f, type: 2}
+  pumpkinAnimatorController: {fileID: 9100000, guid: 0ab14be9ac1784ffd9178040665c773b, type: 2}
+  priestAnimatorController: {fileID: 9100000, guid: c4e8f2a91b3d4e6f8a7c5d2e1f0b9a8c, type: 2}
+  insurgentAnimatorController: {fileID: 9100000, guid: 981bc43e503084e2da1bfe5d292f4630, type: 2}
+  smilerTexture: {fileID: 2800000, guid: c8e94fa7d460b4472bf7ebc3172520d2, type: 3}
+  entityChaseClips:
+  - {fileID: 8300000, guid: 49faafaa61f87644f9e44bc72637eb61, type: 3}
+  - {fileID: 8300000, guid: 92a79d18abe1376439d43b47778ea771, type: 3}
+  - {fileID: 8300000, guid: 3f04aec23870a394a9e99aa923913a21, type: 3}
+  - {fileID: 8300000, guid: 0f3165c7ab8825e4ead7fdd66518ef96, type: 3}
+  - {fileID: 8300000, guid: 399a996e64577634ba17149c8c0f6e7d, type: 3}
+  - {fileID: 8300000, guid: 50298bc76502b354b847bd024940af38, type: 3}
+  - {fileID: 8300000, guid: 7321628871190b84999d54f222590729, type: 3}
+  - {fileID: 8300000, guid: 049f3c61a4e6f864caec898d8da6e5d5, type: 3}
+  - {fileID: 8300000, guid: daebb629bc2b22e48980840d6328c4ca, type: 3}
+  - {fileID: 8300000, guid: 3ca9fec85e248e743a83e1b9d8806ba0, type: 3}
+  - {fileID: 8300000, guid: bb2cd7b67df29a94fa5b0a05cd28befa, type: 3}
+  - {fileID: 8300000, guid: 65548e357882a3f46a2bbd8c451b088b, type: 3}
+  - {fileID: 8300000, guid: 7e4db37262973284aa89ccf7c7805f74, type: 3}
+  - {fileID: 8300000, guid: 64bc9587f2e61a7439c9b5f8d012a4fa, type: 3}
+  - {fileID: 8300000, guid: 5845c033258aed545855b8d03fed4f0c, type: 3}
+  - {fileID: 8300000, guid: 92bd8b665a2b2214e9f4e089965d2652, type: 3}
+  - {fileID: 8300000, guid: 1fba5099fd7761e429e70c446e1febb8, type: 3}
+  - {fileID: 8300000, guid: 23b7783024b891041abc1533701bf5c5, type: 3}
+  - {fileID: 8300000, guid: 4ed59453a328b754499f224ca89368e7, type: 3}
+  - {fileID: 8300000, guid: d9b1367e8813be44bbbbacaddb372319, type: 3}
+  - {fileID: 8300000, guid: 6936dcd0ca598ff448401608225aa4c4, type: 3}
+  - {fileID: 8300000, guid: 571c049e960c87e4880959a6aeffbaea, type: 3}
+  - {fileID: 8300000, guid: 3f370110de75baf409fc1a1cd41274ea, type: 3}
+  - {fileID: 8300000, guid: db5341843630ca14abc05d10706bf8c5, type: 3}
+  - {fileID: 8300000, guid: b41cf2d65306d304f85e9693d0160edc, type: 3}
+  - {fileID: 8300000, guid: eaca2588252b7174098336cdb33fc54d, type: 3}
+  - {fileID: 8300000, guid: 5a05e37024d29024a80bd0ca48815f7d, type: 3}
+  - {fileID: 8300000, guid: d446ec8fe601c5a47b4e0d4b412fdff1, type: 3}
+  - {fileID: 8300000, guid: 1707ff87146c28f49b2b8e61618e15c0, type: 3}
+  - {fileID: 8300000, guid: 2bb415a188093174f8580aa945d843ae, type: 3}

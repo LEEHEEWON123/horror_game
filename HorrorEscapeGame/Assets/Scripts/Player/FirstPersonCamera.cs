@@ -3,9 +3,11 @@ using UnityEngine.InputSystem;
 
 public class FirstPersonCamera : MonoBehaviour
 {
+    public const float DefaultMouseSensitivity = 0.85f;
+
     [SerializeField] private Transform playerBody;
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] private float mouseSensitivity = 1.5f;
+    [SerializeField] private float mouseSensitivity = DefaultMouseSensitivity;
     [SerializeField] private float minPitch = -80f;
     [SerializeField] private float maxPitch = 80f;
     [SerializeField] private float bobAmount = 0.035f;
@@ -21,7 +23,7 @@ public class FirstPersonCamera : MonoBehaviour
     private float _wakeSavedMaxPitch;
     private bool _wakeMode;
 
-    public void Configure(Transform body, Transform cam, float sensitivity = 1.5f)
+    public void Configure(Transform body, Transform cam, float sensitivity = DefaultMouseSensitivity)
     {
         playerBody = body;
         cameraTransform = cam;
@@ -83,8 +85,7 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LockAndCenterCursor();
     }
 
     private void OnDisable()
@@ -100,11 +101,45 @@ public class FirstPersonCamera : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null) return;
 
-        Vector2 delta = mouse.delta.ReadValue() * mouseSensitivity;
+        if (Cursor.lockState != CursorLockMode.Locked && mouse.leftButton.wasPressedThisFrame)
+            LockAndCenterCursor();
+
+        Vector2 delta = ReadLookDelta(mouse);
         if (delta.sqrMagnitude < 0.0001f) return;
 
         _pendingYaw += delta.x;
         _pitch = Mathf.Clamp(_pitch - delta.y, minPitch, maxPitch);
+    }
+
+    private static Vector2 ScreenCenter =>
+        new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
+    private void LockAndCenterCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        WarpCursorToCenter();
+    }
+
+    private static void WarpCursorToCenter()
+    {
+        var mouse = Mouse.current;
+        if (mouse == null) return;
+
+        mouse.WarpCursorPosition(ScreenCenter);
+    }
+
+    private Vector2 ReadLookDelta(Mouse mouse)
+    {
+        if (Cursor.lockState == CursorLockMode.Locked)
+            return mouse.delta.ReadValue() * mouseSensitivity;
+
+        // WebGL / unlocked: rotate from screen center, then snap cursor back to center.
+        Vector2 delta = mouse.position.ReadValue() - ScreenCenter;
+        if (delta.sqrMagnitude > 0.0001f)
+            WarpCursorToCenter();
+
+        return delta * mouseSensitivity;
     }
 
     private void FixedUpdate()

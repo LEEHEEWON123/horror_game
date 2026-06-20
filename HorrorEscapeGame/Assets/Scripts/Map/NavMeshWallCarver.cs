@@ -17,12 +17,25 @@ public static class NavMeshWallCarver
 
     private static bool ShouldCarve(Collider col)
     {
-        if (col.gameObject.name.StartsWith("Boundary_"))
+        string name = col.gameObject.name;
+        if (name.StartsWith("Boundary_")
+            || name == "PerimeterWall"
+            || name == "InteriorWall_H"
+            || name == "InteriorWall_V")
             return true;
 
         Bounds b = col.bounds;
         float horizontal = Mathf.Max(b.size.x, b.size.z);
-        return b.size.y > horizontal * 0.65f && horizontal > 0.05f;
+        float thin = Mathf.Min(b.size.x, b.size.z);
+
+        if (b.size.y > horizontal * 0.65f && horizontal > 0.05f)
+            return true;
+
+        // Thin wall panels (Map_03 interior walls, etc.)
+        if (b.size.y > 1.5f && thin < 1.2f && horizontal > 0.05f)
+            return true;
+
+        return false;
     }
 
     private static void EnsureCarver(Collider col)

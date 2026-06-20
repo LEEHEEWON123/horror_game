@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour
             preview?.UnloadPreview();
         }
 
-        SceneTransitioner.Instance.LoadSceneSeamless(PortalTransitionState.NextScene);
+        SceneTransitioner.Instance.LoadSceneThroughPortal(PortalTransitionState.NextScene);
     }
 
     private void EnsureReturnMapAssigned()

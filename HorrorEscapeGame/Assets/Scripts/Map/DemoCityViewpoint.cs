@@ -35,7 +35,7 @@ public static class DemoCityViewpoint
         }
 
         var fp = pivot.AddComponent<FirstPersonCamera>();
-        fp.Configure(player, cam.transform, 1.5f);
+        fp.Configure(player, cam.transform, FirstPersonCamera.DefaultMouseSensitivity);
         fp.SetPitchLimits(-8f, 22f);
     }
 

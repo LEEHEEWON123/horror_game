@@ -7,9 +7,14 @@ public class MonsterAI : MonoBehaviour
 {
     public enum State { Idle, Patrol, Chase, Search }
 
-    public const float DefaultPatrolSpeed = 3.3f;
-    public const float DefaultChaseSpeed = 9.24f;
-    public const float DefaultSearchSpeed = 9.9f;
+    private const float BasePatrolSpeed = 3f;
+    private const float BaseChaseSpeed = 8.4f;
+    private const float BaseSearchSpeed = 9f;
+    private const float SpeedMultiplier = 1.05f;
+
+    public const float DefaultPatrolSpeed = BasePatrolSpeed * SpeedMultiplier;
+    public const float DefaultChaseSpeed = BaseChaseSpeed * SpeedMultiplier;
+    public const float DefaultSearchSpeed = BaseSearchSpeed * SpeedMultiplier;
 
     [SerializeField] private float idleSpeed = 0f;
     [SerializeField] private float patrolSpeed = DefaultPatrolSpeed;
