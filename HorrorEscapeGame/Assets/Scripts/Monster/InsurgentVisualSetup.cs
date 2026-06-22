@@ -167,7 +167,9 @@ public static class InsurgentVisualSetup
         foreach (var col in visual.GetComponentsInChildren<Collider>(true))
             Object.Destroy(col);
 
+#if UNITY_EDITOR
         ApplyUrpMaterials(visual);
+#endif
         MaterialURPFixer.FixHierarchy(visual);
 
         var animator = visual.GetComponentInChildren<Animator>();
