@@ -12,14 +12,31 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: HorrorEscapeGame/Library
+          key: Library-WebGL-${{ hashFiles('HorrorEscapeGame/Assets/**', 'HorrorEscapeGame/Packages/**', 'HorrorEscapeGame/ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
 
       - name: Build WebGL (Unity)
         uses: game-ci/unity-builder@v4
@@ -27,14 +44,19 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           unityVersion: 6000.4.10f1
           targetPlatform: WebGL
           projectPath: HorrorEscapeGame
           buildMethod: WebGLBuild.BuildForNetlify
-          versioning: Semantic
-          versioningStrategy: None
           allowDirtyBuild: true
+
+      - name: Verify WebGL build output
+        run: |
+          test -f HorrorEscapeGame/Builds/WebGL/index.html
+          test -f HorrorEscapeGame/Builds/WebGL/Build/WebGL.data.br
+          du -sh HorrorEscapeGame/Builds/WebGL
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
@@ -48,4 +70,4 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 10
+        timeout-minutes: 15
