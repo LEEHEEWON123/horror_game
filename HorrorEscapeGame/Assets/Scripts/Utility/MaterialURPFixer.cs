@@ -48,7 +48,16 @@ public static class MaterialURPFixer
 
     private static void CacheShaders()
     {
-        _urpLit ??= Shader.Find("Universal Render Pipeline/Lit");
+        if (_urpLit != null) return;
+
+        var template = HorrorAssetRegistry.Instance?.UrpLitTemplate;
+        if (template != null && template.shader != null)
+        {
+            _urpLit = template.shader;
+            return;
+        }
+
+        _urpLit = Shader.Find("Universal Render Pipeline/Lit");
     }
 
     public static Material ConvertToUrP(Material source)

@@ -39,6 +39,7 @@ public class Map00Bootstrap : MonoBehaviour
         var interaction = player.GetComponent<PlayerInteraction>();
         var canvas = GameUIBuilder.CreateScreenCanvas("GameCanvas", Camera.main);
         RealityCityPlayerSetup.CreateWalkUi(canvas.transform, interaction, "Walk forward...");
+
         VillageAnalogOverlay.Attach();
 
         SpawnProloguePortal(layout);

@@ -15,15 +15,44 @@ MonoBehaviour:
   cityPrefab: {fileID: 4778115209328083979, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
   backroomsLevelPrefab: {fileID: 8544485197912270197, guid: a62ebb512b53f2844b5b312cc82e6bcc, type: 3}
   sponzaPrefab: {fileID: 919132149155446097, guid: 52a52192bf37ef543bb0dcfc6578c80b, type: 3}
+  backroomsFloorPrefab: {fileID: 3501810986385036607, guid: 3857728036168af4487fc614c42e6467, type: 3}
+  backroomsCeilingPrefab: {fileID: 404188263669831734, guid: c57ada1c02902b44896d341d1ab1f1ba, type: 3}
+  backroomsPillarPrefab: {fileID: 3771858566124348113, guid: c5cbb765b4cf7f845af5ef491c50760a, type: 3}
+  parkgarageFloorMaterial: {fileID: 2100000, guid: c42afe5a0c45eaf49a34188947c9626a, type: 2}
+  parkgaragePillarMaterial: {fileID: 2100000, guid: 7771f0ce163c83e43be3eedad211622a, type: 2}
+  parkgarageCeilingMaterial: {fileID: 2100000, guid: 1cced0a0167e5fd46878078d941b725e, type: 2}
+  parkgarageLampPrefab: {fileID: 1070944593024650, guid: 9e64e386550c6c1409eab88cc46172a8, type: 3}
   sponzaFloorMaterial: {fileID: 2100000, guid: 0544cde57a37a794181a44300017f70f, type: 2}
   sponzaWallMaterial: {fileID: 2100000, guid: a93b4d48c118cd8458f3f82777599bad, type: 2}
   sponzaAltWallMaterial: {fileID: 2100000, guid: f87f62dada3b8064aa62fe08f7cdbbb6, type: 2}
   sponzaCeilingMaterial: {fileID: 2100000, guid: 4beb83894b3ab1048bb9fd31df9daa49, type: 2}
+  nycBuildingPrefabs:
+  - {fileID: 8682885298275658534, guid: 3ea307e6247da1d47a379814973a8ea2, type: 3}
+  - {fileID: -4348056318420692696, guid: 06354f8ae81cfad4aa141be78a027f37, type: 3}
+  - {fileID: 1314591037213138283, guid: 71d74c78871f72c418a38baed4b02afe, type: 3}
+  - {fileID: -3527052568414413173, guid: 5712ea1686826d54aba7905c7f9bd9a7, type: 3}
+  nycStreetMaterial: {fileID: 2100000, guid: 9636b7028756f094bbcd0b6fd8bbbc8d, type: 2}
+  prototypeMapPrefab: {fileID: 3794954169302928909, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
+  interiorsFloorPrefab: {fileID: 2315056438029422513, guid: ccecd4e399220ea42b2ecbcc28696122, type: 3}
+  interiorsCorridorCeilingPrefab: {fileID: 8976447212090593015, guid: 9c65ad5d15d130d409157883120b79ae, type: 3}
+  interiorsPillarPrefab: {fileID: 3507828902975304858, guid: 981de3133b74e5f418778ef29bad94ba, type: 3}
+  interiorsPartitionPrefab: {fileID: 9196277651231640279, guid: 604887a0b2749ae47a3099cd58a94c17, type: 3}
+  interiorsOuterWallPrefab: {fileID: 5956110894624362778, guid: 0d0539a2e907db64691139f81ed15cd9, type: 3}
+  interiorsBottomTrimPrefab: {fileID: 4184815689192850367, guid: 037fcc0b8f5f6124e8e7db52347ce36b, type: 3}
+  interiorsCeilingLightPrefab: {fileID: 349740859926176755, guid: 8704b333122b171438bbc872e1e25b62, type: 3}
+  interiorsRailPrefab: {fileID: 2890782128064473336, guid: c06f8d4f186b03d4f85a2fef8a686dbd, type: 3}
+  interiorsStairsPrefab: {fileID: 8044602536172760509, guid: ba062c9258258aa4ebd6b1ba040b34ab, type: 3}
+  backroomsLikeFloorMaterial: {fileID: 2100000, guid: 929dc3bf41496594cbcd3d4badf496d4, type: 2}
+  backroomsLikeCeilingMaterial: {fileID: 2100000, guid: 59bf7e279cd8f544a8af8a444fedfe2f, type: 2}
+  backroomsLikePillarPrefab: {fileID: 3519111060552662047, guid: 29b641f3274cf4748a665a543dc07dfc, type: 3}
   protectiveSuitVisualPrefab: {fileID: 6319086292977565285, guid: 56fc080e7bbacb24c86fd1e5760231bd, type: 3}
+  playerLocomotionController: {fileID: 9100000, guid: 29da2512c2fee4593a77402bf8e68b99, type: 2}
   mutantVisualPrefab: {fileID: 4198877092734045152, guid: f4764a21bb3a8ca4084c8a31149ab67f, type: 3}
+  zombieMaleVisualPrefab: {fileID: 3547707238052702253, guid: 6f8e61bcfda026941b9194b1e2dcb048, type: 3}
   pumpkinVisualPrefab: {fileID: 3719395497478071300, guid: 149914faacece2940a120e1783c4c6a9, type: 3}
   priestVisualPrefab: {fileID: 4363578991983522480, guid: 6924745a509f7b746bc74f3d4548b1aa, type: 3}
   insurgentVisualPrefab: {fileID: 8240661434394411190, guid: 24b5fb0c952c9bd4fb8bbffaaa853f21, type: 3}
+  entityLocomotionController: {fileID: 9100000, guid: 9f6adb740d8044fe1a1c9892350a852f, type: 2}
   mutantAnimatorController: {fileID: 9100000, guid: 9f6adb740d8044fe1a1c9892350a852f, type: 2}
   pumpkinAnimatorController: {fileID: 9100000, guid: 0ab14be9ac1784ffd9178040665c773b, type: 2}
   priestAnimatorController: {fileID: 9100000, guid: c4e8f2a91b3d4e6f8a7c5d2e1f0b9a8c, type: 2}

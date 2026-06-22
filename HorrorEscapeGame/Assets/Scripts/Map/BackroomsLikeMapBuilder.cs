@@ -40,9 +40,9 @@ public static class BackroomsLikeMapBuilder
         var geometry = new GameObject("Geometry");
         geometry.transform.SetParent(root.transform, false);
 
-        var floorMat = LoadMaterial(FloorMatPath);
-        var ceilingMat = LoadMaterial(CeilingMatPath);
-        var pillarPrefab = LoadPrefab($"{AssetRoot}/Walls/Wall_Pillar_A.prefab");
+        var floorMat = RuntimeMaterialLoader.Load(FloorMatPath);
+        var ceilingMat = RuntimeMaterialLoader.Load(CeilingMatPath);
+        var pillarPrefab = RuntimePrefabLoader.Load($"{AssetRoot}/Walls/Wall_Pillar_A.prefab");
 
         if (floorMat == null || ceilingMat == null)
         {
@@ -189,24 +189,6 @@ public static class BackroomsLikeMapBuilder
         instance.transform.SetParent(parent, false);
         instance.transform.localPosition = new Vector3(x, y, z);
         instance.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
-    }
-
-    private static GameObject LoadPrefab(string path)
-    {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>(path);
-#else
-        return null;
-#endif
-    }
-
-    private static Material LoadMaterial(string path)
-    {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<Material>(path);
-#else
-        return null;
-#endif
     }
 
     private static void MarkStaticRecursive(GameObject root)

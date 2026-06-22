@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Tools > Link WebGL Prefabs
@@ -29,31 +30,13 @@ public static class WebGLPrefabLinker
             "Assets/Scenes/Map_07.unity",
         };
 
-        int linked = 0;
-        foreach (var scenePath in scenes)
-        {
-            var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            bool dirty = false;
+        int linked = LinkAllScenes(scenes);
 
-            dirty |= LinkMap00();
-            dirty |= LinkMap01();
-            dirty |= LinkMap02();
-            dirty |= LinkMap03();
-            dirty |= LinkMap04();
-            dirty |= LinkMap05();
-            dirty |= LinkMap06();
-            dirty |= LinkMap07();
+        string message = linked > 0
+            ? $"{linked}개 씬 저장 완료.\n이제 WebGL 빌드하세요."
+            : "변경할 씬이 없습니다.\n(이미 Bootstrap + Prefab이 연결되어 있거나, WebGL은 HorrorAssetRegistry로도 동작합니다.)";
 
-            if (dirty)
-            {
-                EditorSceneManager.MarkSceneDirty(scene);
-                EditorSceneManager.SaveScene(scene);
-                linked++;
-                Debug.Log($"[WebGLPrefabLinker] Saved {scenePath}");
-            }
-        }
-
-        EditorUtility.DisplayDialog("완료", $"{linked}개 씬 저장 완료.\n이제 WebGL 빌드하세요.", "확인");
+        EditorUtility.DisplayDialog("완료", message, "확인");
     }
 
     public static void LinkAllSilent()
@@ -70,31 +53,56 @@ public static class WebGLPrefabLinker
             "Assets/Scenes/Map_07.unity",
         };
 
+        int linked = LinkAllScenes(scenes);
+        Debug.Log($"[WebGLPrefabLinker] Silent link complete ({linked} scenes updated).");
+    }
+
+    private static int LinkAllScenes(string[] scenes)
+    {
         int linked = 0;
+
         foreach (var scenePath in scenes)
         {
-            var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            bool dirty = false;
+            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+            bool dirty = LinkScene(scenePath);
 
-            dirty |= LinkMap00();
-            dirty |= LinkMap01();
-            dirty |= LinkMap02();
-            dirty |= LinkMap03();
-            dirty |= LinkMap04();
-            dirty |= LinkMap05();
-            dirty |= LinkMap06();
-            dirty |= LinkMap07();
+            if (!dirty) continue;
 
-            if (dirty)
-            {
-                EditorSceneManager.MarkSceneDirty(scene);
-                EditorSceneManager.SaveScene(scene);
-                linked++;
-                Debug.Log($"[WebGLPrefabLinker] Saved {scenePath}");
-            }
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            linked++;
+            Debug.Log($"[WebGLPrefabLinker] Saved {scenePath}");
         }
 
-        Debug.Log($"[WebGLPrefabLinker] Silent link complete ({linked} scenes updated).");
+        return linked;
+    }
+
+    private static bool LinkScene(string scenePath)
+    {
+        if (scenePath.EndsWith("Map_00.unity", System.StringComparison.Ordinal)) return LinkMap00();
+        if (scenePath.EndsWith("Map_01.unity", System.StringComparison.Ordinal)) return LinkMap01();
+        if (scenePath.EndsWith("Map_02.unity", System.StringComparison.Ordinal)) return LinkMap02();
+        if (scenePath.EndsWith("Map_03.unity", System.StringComparison.Ordinal)) return LinkMap03();
+        if (scenePath.EndsWith("Map_04.unity", System.StringComparison.Ordinal)) return LinkMap04();
+        if (scenePath.EndsWith("Map_05.unity", System.StringComparison.Ordinal)) return LinkMap05();
+        if (scenePath.EndsWith("Map_06.unity", System.StringComparison.Ordinal)) return LinkMap06();
+        if (scenePath.EndsWith("Map_07.unity", System.StringComparison.Ordinal)) return LinkMap07();
+        return false;
+    }
+
+    private static T EnsureBootstrap<T>(string objectName, out bool created) where T : Component
+    {
+        var bootstrap = Object.FindFirstObjectByType<T>();
+        if (bootstrap != null)
+        {
+            created = false;
+            return bootstrap;
+        }
+
+        var go = new GameObject(objectName);
+        Undo.RegisterCreatedObjectUndo(go, $"Create {objectName}");
+        created = true;
+        return go.AddComponent<T>();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -102,10 +110,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap00()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map00Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map00Bootstrap>("Map00Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "cityPrefab", DemoCityMapBuilder.CityPrefabPath);
@@ -119,10 +126,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap01()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map01Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map01Bootstrap>("Map01Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
@@ -142,15 +148,14 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap02()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map02Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map02Bootstrap>("Map02Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
             "Assets/Protection_suite/Prefab/Mesh_protective suit.prefab");
-        changed |= AssignGameObject(so, "entityVisualPrefab", MutantVisualSetup.PrefabPath);
+        changed |= AssignGameObject(so, "entityVisualPrefab", EntityVisualSetup.DefaultPrefabPath);
         changed |= AssignAnimatorController(so, "entityAnimatorController",
             "Assets/Zombie_Mutant/Animations/EntityLocomotion.controller");
         changed |= AssignChaseClips(so, "entityChaseClips");
@@ -164,10 +169,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap03()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map03Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map03Bootstrap>("Map03Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
@@ -184,10 +188,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap04()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map04Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map04Bootstrap>("Map04Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
@@ -206,10 +209,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap05()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map05Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map05Bootstrap>("Map05Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
@@ -228,10 +230,9 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap06()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map06Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map06Bootstrap>("Map06Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
@@ -250,17 +251,16 @@ public static class WebGLPrefabLinker
     // ─────────────────────────────────────────────────────────────
     private static bool LinkMap07()
     {
-        var bootstrap = Object.FindFirstObjectByType<Map07Bootstrap>();
-        if (bootstrap == null) return false;
+        var bootstrap = EnsureBootstrap<Map07Bootstrap>("Map07Bootstrap", out bool created);
 
-        bool changed = false;
+        bool changed = created;
         var so = new SerializedObject(bootstrap);
 
         changed |= AssignGameObject(so, "protectiveSuitVisualPrefab",
             "Assets/Protection_suite/Prefab/Mesh_protective suit.prefab");
-        changed |= AssignGameObject(so, "entityVisualPrefab", MutantVisualSetup.PrefabPath);
-        changed |= AssignAnimatorController(so, "entityAnimatorController",
-            "Assets/Zombie_Mutant/Animations/EntityLocomotion.controller");
+        changed |= ForceAssignGameObject(so, "entityVisualPrefab", InsurgentVisualSetup.PrefabPath);
+        changed |= ForceAssignAnimatorController(so, "entityAnimatorController",
+            InsurgentVisualSetup.ControllerPath);
         changed |= AssignChaseClips(so, "entityChaseClips");
 
         so.ApplyModifiedProperties();
@@ -330,6 +330,42 @@ public static class WebGLPrefabLinker
         for (int i = 0; i < clips.Length; i++)
             prop.GetArrayElementAtIndex(i).objectReferenceValue = clips[i];
 
+        return true;
+    }
+
+    private static bool ForceAssignGameObject(SerializedObject so, string fieldName, string assetPath)
+    {
+        var prop = so.FindProperty(fieldName);
+        if (prop == null) return false;
+
+        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        if (asset == null)
+        {
+            Debug.LogWarning($"[WebGLPrefabLinker] Not found: {assetPath}");
+            return false;
+        }
+
+        if (prop.objectReferenceValue == asset) return false;
+
+        prop.objectReferenceValue = asset;
+        return true;
+    }
+
+    private static bool ForceAssignAnimatorController(SerializedObject so, string fieldName, string assetPath)
+    {
+        var prop = so.FindProperty(fieldName);
+        if (prop == null) return false;
+
+        var asset = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(assetPath);
+        if (asset == null)
+        {
+            Debug.LogWarning($"[WebGLPrefabLinker] Not found: {assetPath}");
+            return false;
+        }
+
+        if (prop.objectReferenceValue == asset) return false;
+
+        prop.objectReferenceValue = asset;
         return true;
     }
 }

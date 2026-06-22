@@ -34,6 +34,7 @@ public class Map02Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
+
         NavMeshBaker.BakeForMap(map.Bounds);
 
         SpawnMonster("Entity_Map02_A", _layout.MonsterSpawns[0], _layout.MonsterWaypoints);
@@ -46,8 +47,8 @@ public class Map02Bootstrap : MonoBehaviour
         if (reg != null)
         {
             if (protectiveSuitVisualPrefab == null) protectiveSuitVisualPrefab = reg.protectiveSuitVisualPrefab;
-            if (entityVisualPrefab == null) entityVisualPrefab = reg.mutantVisualPrefab;
-            if (entityAnimatorController == null) entityAnimatorController = reg.mutantAnimatorController;
+            if (entityVisualPrefab == null) entityVisualPrefab = reg.zombieMaleVisualPrefab;
+            if (entityAnimatorController == null) entityAnimatorController = reg.entityLocomotionController;
             if (entityChaseClips == null || entityChaseClips.Length == 0) entityChaseClips = reg.entityChaseClips;
         }
 #if UNITY_EDITOR

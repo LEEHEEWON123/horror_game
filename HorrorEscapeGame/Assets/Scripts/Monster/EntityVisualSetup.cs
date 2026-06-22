@@ -22,6 +22,10 @@ public static class EntityVisualSetup
 
     public static GameObject LoadDefaultPrefab()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.zombieMaleVisualPrefab != null)
+            return reg.zombieMaleVisualPrefab;
+
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<GameObject>(DefaultPrefabPath);
 #else
@@ -35,7 +39,9 @@ public static class EntityVisualSetup
 
         visual.transform.localScale = Vector3.one * VisualScale;
         visual.transform.localPosition = new Vector3(0f, VisualGroundOffsetY, 0f);
+#if UNITY_EDITOR
         ApplyUrpMaterials(visual);
+#endif
         MaterialURPFixer.FixHierarchy(visual);
         SuppressModularFootMeshes(visual);
 

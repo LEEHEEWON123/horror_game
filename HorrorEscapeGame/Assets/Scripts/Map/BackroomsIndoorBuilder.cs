@@ -56,6 +56,7 @@ public static class BackroomsIndoorBuilder
             BuildCeiling(ceilingPrefab, geometry.transform, widthTiles, depthTiles);
 
         MarkStaticRecursive(geometry);
+        MaterialURPFixer.FixHierarchy(geometry);
         Physics.SyncTransforms();
 
         float centerX = widthTiles * Tile * 0.5f - Tile * 0.5f;
@@ -146,14 +147,7 @@ public static class BackroomsIndoorBuilder
         instance.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
     }
 
-    private static GameObject LoadPrefab(string path)
-    {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>(path);
-#else
-        return null;
-#endif
-    }
+    private static GameObject LoadPrefab(string path) => RuntimePrefabLoader.Load(path);
 
     private static void MarkStaticRecursive(GameObject root)
     {

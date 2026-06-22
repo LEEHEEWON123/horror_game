@@ -38,6 +38,7 @@ public class Map03Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
+
         NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: true, preferPhysicsColliders: true);
 
         SpawnSmiler("Smiler_Map03_A", _layout.SmilerSpawn, _layout.SmilerWaypoints);

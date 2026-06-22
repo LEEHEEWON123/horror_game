@@ -70,6 +70,7 @@ public class Map04Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
+
         NavMeshBaker.BakeForMapRoot(map.Root.transform);
 
         SpawnMonster("Entity_Map04_A", _layout.MonsterSpawns[0], _layout.MonsterWaypoints);

@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class FirstPersonCamera : MonoBehaviour
 {
-    public const float DefaultMouseSensitivity = 0.85f;
+    public const float DefaultMouseSensitivity = 3f;
 
     [SerializeField] private Transform playerBody;
     [SerializeField] private Transform cameraTransform;
@@ -15,13 +15,14 @@ public class FirstPersonCamera : MonoBehaviour
 
     private float _yaw;
     private float _pitch;
-    private float _pendingYaw;
     private float _bobPhase;
     private Vector3 _cameraRestLocalPos;
     private Rigidbody _rb;
     private float _wakeSavedMinPitch;
     private float _wakeSavedMaxPitch;
     private bool _wakeMode;
+
+    public void SetSensitivity(float s) => mouseSensitivity = s;
 
     public void Configure(Transform body, Transform cam, float sensitivity = DefaultMouseSensitivity)
     {
@@ -31,7 +32,6 @@ public class FirstPersonCamera : MonoBehaviour
         _rb = body != null ? body.GetComponent<Rigidbody>() : null;
         _yaw = body != null ? body.eulerAngles.y : 0f;
         _pitch = 0f;
-        _pendingYaw = 0f;
         _cameraRestLocalPos = cam.localPosition;
         cam.localRotation = Quaternion.identity;
     }
@@ -41,7 +41,6 @@ public class FirstPersonCamera : MonoBehaviour
         if (playerBody == null) return;
 
         _yaw = playerBody.eulerAngles.y;
-        _pendingYaw = 0f;
     }
 
     public void SetPitchLimits(float min, float max)
@@ -85,75 +84,43 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        LockAndCenterCursor();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        mouseSensitivity = MouseSensitivityPrefs.Load();
+        MouseSensitivityPrefs.SensitivityChanged += OnSensitivityChanged;
     }
 
     private void OnDisable()
     {
+        MouseSensitivityPrefs.SensitivityChanged -= OnSensitivityChanged;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
+    private void OnSensitivityChanged(float value) => mouseSensitivity = value;
+
     private void Update()
     {
         if (playerBody == null || cameraTransform == null) return;
+        if (SensitivitySettingsUI.IsOpen) return;
 
         var mouse = Mouse.current;
         if (mouse == null) return;
 
-        if (Cursor.lockState != CursorLockMode.Locked && mouse.leftButton.wasPressedThisFrame)
-            LockAndCenterCursor();
-
-        Vector2 delta = ReadLookDelta(mouse);
+        Vector2 delta = mouse.delta.ReadValue() * mouseSensitivity;
         if (delta.sqrMagnitude < 0.0001f) return;
 
-        _pendingYaw += delta.x;
+        _yaw += delta.x;
         _pitch = Mathf.Clamp(_pitch - delta.y, minPitch, maxPitch);
+        ApplyBodyYaw();
     }
 
-    private static Vector2 ScreenCenter =>
-        new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-
-    private void LockAndCenterCursor()
+    private void ApplyBodyYaw()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        WarpCursorToCenter();
-    }
-
-    private static void WarpCursorToCenter()
-    {
-        var mouse = Mouse.current;
-        if (mouse == null) return;
-
-        mouse.WarpCursorPosition(ScreenCenter);
-    }
-
-    private Vector2 ReadLookDelta(Mouse mouse)
-    {
-        if (Cursor.lockState == CursorLockMode.Locked)
-            return mouse.delta.ReadValue() * mouseSensitivity;
-
-        // WebGL / unlocked: rotate from screen center, then snap cursor back to center.
-        Vector2 delta = mouse.position.ReadValue() - ScreenCenter;
-        if (delta.sqrMagnitude > 0.0001f)
-            WarpCursorToCenter();
-
-        return delta * mouseSensitivity;
-    }
-
-    private void FixedUpdate()
-    {
-        if (playerBody == null || Mathf.Abs(_pendingYaw) < 0.0001f) return;
-
-        _yaw += _pendingYaw;
-        _pendingYaw = 0f;
-
         var rotation = Quaternion.Euler(0f, _yaw, 0f);
+        playerBody.rotation = rotation;
         if (_rb != null)
-            _rb.MoveRotation(rotation);
-        else
-            playerBody.rotation = rotation;
+            _rb.rotation = rotation;
     }
 
     private void LateUpdate()

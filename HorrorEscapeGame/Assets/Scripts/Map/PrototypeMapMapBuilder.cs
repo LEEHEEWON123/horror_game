@@ -105,10 +105,6 @@ public static class PrototypeMapMapBuilder
 
     private static GameObject LoadPrefab()
     {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
-#else
-        return null;
-#endif
+        return RuntimePrefabLoader.Load(PrefabPath);
     }
 }

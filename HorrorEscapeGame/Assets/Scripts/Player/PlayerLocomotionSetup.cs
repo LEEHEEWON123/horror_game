@@ -14,15 +14,26 @@ public static class PlayerLocomotionSetup
 
         animator.applyRootMotion = false;
 
-#if UNITY_EDITOR
-        var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(ControllerPath);
+        var controller = LoadController();
         if (controller != null)
             animator.runtimeAnimatorController = controller;
-#endif
 
         var locomotion = playerRoot.GetComponent<PlayerLocomotionAnimator>();
         if (locomotion == null)
             locomotion = playerRoot.AddComponent<PlayerLocomotionAnimator>();
         locomotion.Bind(animator);
+    }
+
+    private static RuntimeAnimatorController LoadController()
+    {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.playerLocomotionController != null)
+            return reg.playerLocomotionController;
+
+#if UNITY_EDITOR
+        return AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(ControllerPath);
+#else
+        return null;
+#endif
     }
 }

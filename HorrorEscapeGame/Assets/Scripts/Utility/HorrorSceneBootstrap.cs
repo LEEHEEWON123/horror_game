@@ -112,5 +112,7 @@ public static class HorrorSceneBootstrap
                     new GameObject("ComingSoonBootstrap").AddComponent<ComingSoonBootstrap>();
                 break;
         }
+
+        PlayerSettingsAttach.TryAttach();
     }
 }

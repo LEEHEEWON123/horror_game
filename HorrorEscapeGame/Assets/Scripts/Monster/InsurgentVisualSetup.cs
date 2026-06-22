@@ -27,6 +27,10 @@ public static class InsurgentVisualSetup
 
     public static GameObject LoadPrefab()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.insurgentVisualPrefab != null)
+            return reg.insurgentVisualPrefab;
+
 #if UNITY_EDITOR
         EnsureHumanoidImport();
         return AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
@@ -192,6 +196,10 @@ public static class InsurgentVisualSetup
 
     public static RuntimeAnimatorController LoadDefaultController()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.insurgentAnimatorController != null)
+            return reg.insurgentAnimatorController;
+
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(ControllerPath);
 #else

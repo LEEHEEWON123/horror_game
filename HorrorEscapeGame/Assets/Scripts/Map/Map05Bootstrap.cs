@@ -61,6 +61,7 @@ public class Map05Bootstrap : MonoBehaviour
         player.GetComponent<PlayerController>().SetJoystick(joystick.joystick);
 
         GameUIBuilder.CreateHUD(canvas.transform, interaction);
+
         NavMeshBaker.BakeForMapRoot(map.Root.transform, carveWalls: false, preferPhysicsColliders: true);
 
         SpawnMonster("Entity_Map05_A", _layout.MonsterSpawns[0], _layout.MonsterWaypoints);

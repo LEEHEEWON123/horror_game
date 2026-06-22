@@ -32,6 +32,8 @@ public static class NycCityMapBuilder
         "building_1_1 Variant.prefab",
     };
 
+    public static readonly string[] BuildingPrefabFileNames = BuildingPrefabs;
+
     private const string StreetMaterialPath =
         "Assets/(HDRP) NYC-Like City Buildings Set (PBR)/Materials/concrate.mat";
 
@@ -135,11 +137,17 @@ public static class NycCityMapBuilder
 
     private static Material CreateStreetMaterial(float mapWidth, float mapDepth)
     {
-#if UNITY_EDITOR
-        var source = AssetDatabase.LoadAssetAtPath<Material>(StreetMaterialPath);
-        var mat = source != null ? MaterialURPFixer.ConvertToUrP(source) : null;
-#else
         Material mat = null;
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.nycStreetMaterial != null)
+            mat = MaterialURPFixer.ConvertToUrP(reg.nycStreetMaterial);
+
+#if UNITY_EDITOR
+        if (mat == null)
+        {
+            var source = AssetDatabase.LoadAssetAtPath<Material>(StreetMaterialPath);
+            mat = source != null ? MaterialURPFixer.ConvertToUrP(source) : null;
+        }
 #endif
         if (mat == null)
             mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
@@ -382,10 +390,6 @@ public static class NycCityMapBuilder
 
     private static GameObject LoadBuildingPrefab(string fileName)
     {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>($"{BuildingsFolder}/{fileName}");
-#else
-        return null;
-#endif
+        return RuntimePrefabLoader.Load($"{BuildingsFolder}/{fileName}");
     }
 }

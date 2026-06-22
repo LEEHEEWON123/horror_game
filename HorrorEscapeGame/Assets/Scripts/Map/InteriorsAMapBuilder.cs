@@ -268,14 +268,7 @@ public static class InteriorsAMapBuilder
         }
     }
 
-    private static GameObject LoadPrefab(string path)
-    {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>(path);
-#else
-        return null;
-#endif
-    }
+    private static GameObject LoadPrefab(string path) => RuntimePrefabLoader.Load(path);
 
     private static void MarkStaticRecursive(GameObject root)
     {

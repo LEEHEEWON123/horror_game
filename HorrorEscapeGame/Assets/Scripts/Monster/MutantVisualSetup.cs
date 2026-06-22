@@ -17,6 +17,10 @@ public static class MutantVisualSetup
 
     public static GameObject LoadPrefab()
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null && reg.mutantVisualPrefab != null)
+            return reg.mutantVisualPrefab;
+
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
 #else
@@ -30,7 +34,9 @@ public static class MutantVisualSetup
 
         visual.transform.localScale = Vector3.one * VisualScale;
         visual.transform.localPosition = Vector3.zero;
+#if UNITY_EDITOR
         ApplyUrpMaterials(visual);
+#endif
         MaterialURPFixer.FixHierarchy(visual);
 
         var animator = visual.GetComponentInChildren<Animator>();

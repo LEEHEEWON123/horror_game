@@ -40,11 +40,12 @@ public static class GameUIBuilder
         var area = CreateUIObject("JoystickArea", parent);
         var areaRt = area.GetComponent<RectTransform>();
         areaRt.anchorMin = Vector2.zero;
-        areaRt.anchorMax = new Vector2(0.5f, 0.5f);
+        areaRt.anchorMax = new Vector2(0.5f, 0.4f);
         areaRt.offsetMin = Vector2.zero;
         areaRt.offsetMax = Vector2.zero;
         var areaImg = area.AddComponent<Image>();
         areaImg.color = new Color(0, 0, 0, 0);
+        areaImg.raycastTarget = true;
 
         var bg = CreateUIObject("JoystickBackground", area.transform);
         var bgRt = bg.GetComponent<RectTransform>();
@@ -80,20 +81,6 @@ public static class GameUIBuilder
         var hudRt = hudRoot.GetComponent<RectTransform>();
         Stretch(hudRt);
 
-        var hearts = new Image[GameState.MaxLives];
-        for (int i = 0; i < hearts.Length; i++)
-        {
-            var heart = CreateUIObject($"Heart_{i + 1}", hudRoot.transform);
-            var rt = heart.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 1);
-            rt.anchoredPosition = new Vector2(20 + i * 50, -20);
-            rt.sizeDelta = new Vector2(40, 40);
-            hearts[i] = heart.AddComponent<Image>();
-            hearts[i].color = Color.red;
-        }
-
         var interactBtn = CreateUIObject("InteractionButton", hudRoot.transform);
         var interactRt = interactBtn.GetComponent<RectTransform>();
         interactRt.anchorMin = new Vector2(0.5f, 0);
@@ -117,7 +104,7 @@ public static class GameUIBuilder
         interactBtn.SetActive(false);
 
         var hud = hudRoot.AddComponent<HUDManager>();
-        hud.Configure(hearts, interactBtn, label);
+        hud.Configure(interactBtn, label);
 
         if (!showMinimap)
         {

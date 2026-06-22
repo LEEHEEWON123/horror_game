@@ -6,8 +6,10 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 /// <summary>
-/// itch.io WebGL 빌드: Unity 메뉴 Tools > Build WebGL for itch.io
-/// CLI: Unity -batchmode -executeMethod WebGLBuild.BuildForItch -projectPath ...
+/// WebGL 빌드:
+/// - itch.io: Tools > Build WebGL for itch.io (200MB 한도용 텍스처 축소)
+/// - Netlify: Tools > Build WebGL for Netlify (용량 무관, 풀 품질)
+/// CLI: Unity -batchmode -executeMethod WebGLBuild.BuildForNetlify -projectPath ...
 /// </summary>
 public static class WebGLBuild
 {
@@ -20,9 +22,9 @@ public static class WebGLBuild
     public static void BuildForItchMenu()
     {
         if (!EditorUtility.DisplayDialog(
-                "WebGL Build",
-                "Registry 갱신 → Prefab 링크 → WebGL 빌드를 실행합니다.\n\n" +
-                $"출력: {OutputPath}\n\n시간이 꽤 걸릴 수 있습니다.",
+                "WebGL Build (itch.io)",
+                "Registry 갱신 → Prefab 링크 → 텍스처 축소 → WebGL 빌드\n\n" +
+                $"출력: {OutputPath}\n\n(itch.io 200MB 한도용)",
                 "빌드",
                 "취소"))
             return;
@@ -30,50 +32,28 @@ public static class WebGLBuild
         BuildForItch();
     }
 
+    [MenuItem("Tools/Build WebGL for Netlify")]
+    public static void BuildForNetlifyMenu()
+    {
+        if (!EditorUtility.DisplayDialog(
+                "WebGL Build (Netlify)",
+                "Registry 갱신 → Prefab 링크 → 텍스처 품질 복구 → WebGL 빌드\n\n" +
+                $"출력: {OutputPath}\n\nNetlify용 — 용량 제한 없음, _headers 포함",
+                "빌드",
+                "취소"))
+            return;
+
+        BuildForNetlify();
+    }
+
     public static void BuildForItch()
     {
-        Debug.Log("[WebGLBuild] Preparing HorrorAssetRegistry...");
-        HorrorAssetRegistryBuilder.Build();
-
-        Debug.Log("[WebGLBuild] Linking WebGL prefabs in map scenes...");
-        WebGLPrefabLinker.LinkAllSilent();
-
-        Debug.Log("[WebGLBuild] Shrinking textures for itch.io 200MB limit (2nd half-res + compression)...");
+        PrepareCommonAssets();
+        Debug.Log("[WebGLBuild] Shrinking textures for itch.io 200MB limit...");
         WebGLTextureHalfResTool.PrepareForItchSilent();
 
-        var scenes = EditorBuildSettings.scenes
-            .Where(s => s.enabled)
-            .Select(s => s.path)
-            .ToArray();
-
-        if (scenes.Length == 0)
-        {
-            Debug.LogError("[WebGLBuild] No scenes in Build Settings.");
-            ExitEditor(1);
+        if (!RunWebGLBuild("itch.io"))
             return;
-        }
-
-        Debug.Log($"[WebGLBuild] Building WebGL ({scenes.Length} scenes) → {OutputPath}");
-
-        var options = new BuildPlayerOptions
-        {
-            scenes = scenes,
-            locationPathName = OutputPath,
-            target = BuildTarget.WebGL,
-            options = BuildOptions.None,
-        };
-
-        BuildReport report = BuildPipeline.BuildPlayer(options);
-        var summary = report.summary;
-
-        if (summary.result != BuildResult.Succeeded)
-        {
-            Debug.LogError($"[WebGLBuild] Failed: {summary.result} ({summary.totalErrors} errors)");
-            ExitEditor(1);
-            return;
-        }
-
-        Debug.Log($"[WebGLBuild] Succeeded in {summary.totalTime.TotalMinutes:F1} min → {OutputPath}");
 
         if (!VerifyItchDataSize(out string sizeMessage))
         {
@@ -93,6 +73,116 @@ public static class WebGLBuild
         Debug.Log($"[WebGLBuild] {sizeMessage}");
         ExitEditor(0);
     }
+
+    public static void BuildForNetlify()
+    {
+        PrepareCommonAssets();
+        Debug.Log("[WebGLBuild] Restoring WebGL texture quality for Netlify (no size cap)...");
+        WebGLTextureHalfResTool.RestoreWebGLQualitySilent();
+
+        if (!RunWebGLBuild("Netlify"))
+            return;
+
+        WriteNetlifyDeployFiles();
+        LogBuildSize("Netlify");
+        ExitEditor(0);
+    }
+
+    private static void PrepareCommonAssets()
+    {
+        Debug.Log("[WebGLBuild] Preparing HorrorAssetRegistry...");
+        HorrorAssetRegistryBuilder.Build();
+
+        Debug.Log("[WebGLBuild] Linking WebGL prefabs in map scenes...");
+        WebGLPrefabLinker.LinkAllSilent();
+    }
+
+    private static bool RunWebGLBuild(string label)
+    {
+        var scenes = EditorBuildSettings.scenes
+            .Where(s => s.enabled)
+            .Select(s => s.path)
+            .ToArray();
+
+        if (scenes.Length == 0)
+        {
+            Debug.LogError("[WebGLBuild] No scenes in Build Settings.");
+            ExitEditor(1);
+            return false;
+        }
+
+        Debug.Log($"[WebGLBuild] Building WebGL for {label} ({scenes.Length} scenes) → {OutputPath}");
+
+        var options = new BuildPlayerOptions
+        {
+            scenes = scenes,
+            locationPathName = OutputPath,
+            target = BuildTarget.WebGL,
+            options = BuildOptions.None,
+        };
+
+        BuildReport report = BuildPipeline.BuildPlayer(options);
+        var summary = report.summary;
+
+        if (summary.result != BuildResult.Succeeded)
+        {
+            Debug.LogError($"[WebGLBuild] Failed: {summary.result} ({summary.totalErrors} errors)");
+            ExitEditor(1);
+            return false;
+        }
+
+        Debug.Log($"[WebGLBuild] Succeeded in {summary.totalTime.TotalMinutes:F1} min → {OutputPath}");
+        return true;
+    }
+
+    private static void WriteNetlifyDeployFiles()
+    {
+        Directory.CreateDirectory(OutputPath);
+
+        File.WriteAllText(Path.Combine(OutputPath, "_headers"), NetlifyHeaders);
+        File.WriteAllText(Path.Combine(OutputPath, "netlify.toml"), NetlifyToml);
+
+        Debug.Log("[WebGLBuild] Wrote _headers and netlify.toml for Netlify deploy.");
+    }
+
+    private static void LogBuildSize(string label)
+    {
+        string dataPath = Path.Combine(OutputPath, DataFileRelativePath);
+        if (!File.Exists(dataPath))
+        {
+            Debug.LogWarning($"[WebGLBuild] {label}: missing {DataFileRelativePath}");
+            return;
+        }
+
+        double mb = new FileInfo(dataPath).Length / (1024.0 * 1024.0);
+        Debug.Log($"[WebGLBuild] {label} build ready. WebGL.data.br = {mb:F1} MB (no size limit).");
+    }
+
+    private const string NetlifyHeaders =
+        "/*\n" +
+        "  Cross-Origin-Opener-Policy: same-origin\n" +
+        "  Cross-Origin-Embedder-Policy: require-corp\n" +
+        "\n" +
+        "/Build/*.data.br\n" +
+        "  Content-Type: application/octet-stream\n" +
+        "  Content-Encoding: br\n" +
+        "\n" +
+        "/Build/*.wasm.br\n" +
+        "  Content-Type: application/wasm\n" +
+        "  Content-Encoding: br\n" +
+        "\n" +
+        "/Build/*.framework.js.br\n" +
+        "  Content-Type: application/javascript\n" +
+        "  Content-Encoding: br\n" +
+        "\n" +
+        "/Build/*.js.br\n" +
+        "  Content-Type: application/javascript\n" +
+        "  Content-Encoding: br\n";
+
+    private const string NetlifyToml =
+        "# Deploy this folder as the Netlify site root (drag-drop or publish directory).\n" +
+        "[build]\n" +
+        "  publish = \".\"\n";
 
     private static bool VerifyItchDataSize(out string message)
     {

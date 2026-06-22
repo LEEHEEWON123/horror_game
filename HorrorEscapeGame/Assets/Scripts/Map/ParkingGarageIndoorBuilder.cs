@@ -7,8 +7,10 @@ public static class ParkingGarageIndoorBuilder
 {
     private const float Tile = 3f;
     private const float RoomHeight = 3f;
-    private const string MatRoot = "Assets/Parkgarage/Prefabs/parkgarage/Materials";
     private const string LampPrefabPath = "Assets/Parkgarage/Prefabs/lamps/Lamp_parkgarage_prefab.prefab";
+    private const string FloorMatPath = "Assets/Parkgarage/Prefabs/parkgarage/Materials/Parkgarage_floor.mat";
+    private const string PillarMatPath = "Assets/Parkgarage/Prefabs/parkgarage/Materials/Big_poles.mat";
+    private const string CeilingMatPath = "Assets/Parkgarage/Prefabs/parkgarage/Materials/Floor_up_wall.mat";
 
     public struct BuildResult
     {
@@ -30,9 +32,9 @@ public static class ParkingGarageIndoorBuilder
         var geometry = new GameObject("Geometry");
         geometry.transform.SetParent(root.transform);
 
-        var floorMat = LoadMaterial($"{MatRoot}/Parkgarage_floor.mat");
-        var pillarMat = LoadMaterial($"{MatRoot}/Big_poles.mat");
-        var ceilingMat = LoadMaterial($"{MatRoot}/Floor_up_wall.mat");
+        var floorMat = LoadMaterial(FloorMatPath);
+        var pillarMat = LoadMaterial(PillarMatPath);
+        var ceilingMat = LoadMaterial(CeilingMatPath);
         var lampPrefab = LoadPrefab(LampPrefabPath);
 
         BuildFloor(geometry.transform, widthTiles, depthTiles, floorMat);
@@ -141,6 +143,17 @@ public static class ParkingGarageIndoorBuilder
 
     private static Material LoadMaterial(string path)
     {
+        var reg = HorrorAssetRegistry.Instance;
+        if (reg != null)
+        {
+            if (path == FloorMatPath && reg.parkgarageFloorMaterial != null)
+                return reg.parkgarageFloorMaterial;
+            if (path == PillarMatPath && reg.parkgaragePillarMaterial != null)
+                return reg.parkgaragePillarMaterial;
+            if (path == CeilingMatPath && reg.parkgarageCeilingMaterial != null)
+                return reg.parkgarageCeilingMaterial;
+        }
+
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<Material>(path);
 #else
@@ -148,14 +161,7 @@ public static class ParkingGarageIndoorBuilder
 #endif
     }
 
-    private static GameObject LoadPrefab(string path)
-    {
-#if UNITY_EDITOR
-        return AssetDatabase.LoadAssetAtPath<GameObject>(path);
-#else
-        return null;
-#endif
-    }
+    private static GameObject LoadPrefab(string path) => RuntimePrefabLoader.Load(path);
 
     private static void MarkStaticRecursive(GameObject root)
     {
