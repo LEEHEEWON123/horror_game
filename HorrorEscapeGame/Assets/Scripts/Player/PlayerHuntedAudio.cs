@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class PlayerHuntedAudio : MonoBehaviour
 {
     [SerializeField] private AudioClip[] huntClips;
@@ -27,6 +28,8 @@ public class PlayerHuntedAudio : MonoBehaviour
             clip.LoadAudioData();
         }
     }
+
+    private void Awake() => EnsureSource();
 
     private void Start()
     {
@@ -78,9 +81,6 @@ public class PlayerHuntedAudio : MonoBehaviour
         if (_source != null) return;
 
         _source = GetComponent<AudioSource>();
-        if (_source == null)
-            _source = gameObject.AddComponent<AudioSource>();
-
         _source.playOnAwake = false;
         _source.loop = false;
         _source.spatialBlend = 0f;

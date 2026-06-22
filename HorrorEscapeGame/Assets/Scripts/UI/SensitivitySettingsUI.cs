@@ -235,8 +235,7 @@ public class SensitivitySettingsUI : MonoBehaviour
         if (_fpCam != null)
             _fpCam.enabled = false;
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        FirstPersonCamera.UnlockCursor();
         _dialogRoot.transform.SetAsLastSibling();
         _settingsButtonRt.transform.SetAsLastSibling();
         _dialogRoot.SetActive(true);
@@ -261,8 +260,7 @@ public class SensitivitySettingsUI : MonoBehaviour
         if (_fpCam != null)
             _fpCam.enabled = true;
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        FirstPersonCamera.UnlockCursor();
     }
 
     private void OnSliderChanged(float value)

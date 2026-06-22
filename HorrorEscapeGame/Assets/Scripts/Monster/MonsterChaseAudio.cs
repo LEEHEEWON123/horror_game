@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class MonsterChaseAudio : MonoBehaviour
 {
     [SerializeField] private AudioClip[] chaseClips;
@@ -55,12 +56,7 @@ public class MonsterChaseAudio : MonoBehaviour
     private void EnsureSource()
     {
         if (_source != null) return;
-
-        var audioGo = new GameObject("ChaseSfx");
-        audioGo.transform.SetParent(transform, false);
-        audioGo.transform.localPosition = new Vector3(0f, 1.4f, 0f);
-
-        _source = audioGo.AddComponent<AudioSource>();
+        _source = GetComponent<AudioSource>();
         _source.playOnAwake = false;
         _source.loop = true;
         _source.spatialBlend = 0f;

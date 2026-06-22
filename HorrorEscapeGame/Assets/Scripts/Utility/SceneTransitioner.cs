@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class SceneTransitioner : MonoBehaviour
 {
     public static SceneTransitioner Instance { get; private set; }
@@ -327,7 +328,7 @@ public class SceneTransitioner : MonoBehaviour
     private void EnsureScreamSource()
     {
         if (_screamSource != null) return;
-        _screamSource = gameObject.AddComponent<AudioSource>();
+        _screamSource = GetComponent<AudioSource>();
         _screamSource.clip = FallScreamSynth.CreateClip();
         _screamSource.loop = false;
         _screamSource.spatialBlend = 0f;

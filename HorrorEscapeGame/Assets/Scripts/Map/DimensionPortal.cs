@@ -104,16 +104,7 @@ public class DimensionPortal : MonoBehaviour
         var clip = PortalAudioSetup.LoadEnterClip();
         if (clip == null) return;
 
-        var go = new GameObject("PortalEnterOneShot");
-        go.transform.position = position;
-        var source = go.AddComponent<AudioSource>();
-        source.clip = clip;
-        source.spatialBlend = 1f;
-        source.minDistance = 2f;
-        source.maxDistance = 16f;
-        source.volume = 0.75f;
-        source.Play();
-        Destroy(go, clip.length + 0.1f);
+        AudioSource.PlayClipAtPoint(clip, position, 0.75f);
     }
 
     private static void SetGameplayEnabled(

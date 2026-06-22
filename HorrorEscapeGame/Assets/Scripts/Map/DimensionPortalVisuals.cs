@@ -61,19 +61,9 @@ public static class DimensionPortalVisuals
 
         var humGo = new GameObject("PortalHum");
         humGo.transform.SetParent(root, false);
-        var hum = humGo.AddComponent<AudioSource>();
-        hum.loop = true;
-        hum.playOnAwake = false;
-        hum.spatialBlend = 1f;
-        hum.minDistance = 2f;
-        hum.maxDistance = 18f;
-        hum.volume = 0f;
-        var humClip = PortalAudioSetup.LoadHumLoop();
-        if (humClip != null)
-        {
-            hum.clip = humClip;
-            hum.Play();
-        }
+        var humAudio = humGo.AddComponent<PortalHumAudio>();
+        humAudio.Configure(PortalAudioSetup.LoadHumLoop());
+        var hum = humAudio.Source;
 
         Object.Destroy(stain.GetComponent<Collider>());
         Object.Destroy(outerRing.GetComponent<Collider>());

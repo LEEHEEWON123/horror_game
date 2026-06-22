@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class FirstPersonCamera : MonoBehaviour
@@ -21,6 +22,20 @@ public class FirstPersonCamera : MonoBehaviour
     private float _wakeSavedMinPitch;
     private float _wakeSavedMaxPitch;
     private bool _wakeMode;
+
+    public static bool IsCursorLocked => Cursor.lockState == CursorLockMode.Locked;
+
+    public static void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public static void RequestLockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 
     public void SetSensitivity(float s) => mouseSensitivity = s;
 
@@ -84,8 +99,7 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        UnlockCursor();
         mouseSensitivity = MouseSensitivityPrefs.Load();
         MouseSensitivityPrefs.SensitivityChanged += OnSensitivityChanged;
     }
@@ -93,8 +107,7 @@ public class FirstPersonCamera : MonoBehaviour
     private void OnDisable()
     {
         MouseSensitivityPrefs.SensitivityChanged -= OnSensitivityChanged;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        UnlockCursor();
     }
 
     private void OnSensitivityChanged(float value) => mouseSensitivity = value;
@@ -107,12 +120,30 @@ public class FirstPersonCamera : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null) return;
 
+        if (!IsCursorLocked)
+        {
+            if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUI())
+                RequestLockCursor();
+            return;
+        }
+
+        if (!Application.isFocused)
+        {
+            UnlockCursor();
+            return;
+        }
+
         Vector2 delta = mouse.delta.ReadValue() * mouseSensitivity;
         if (delta.sqrMagnitude < 0.0001f) return;
 
         _yaw += delta.x;
         _pitch = Mathf.Clamp(_pitch - delta.y, minPitch, maxPitch);
         ApplyBodyYaw();
+    }
+
+    private static bool IsPointerOverUI()
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 
     private void ApplyBodyYaw()
